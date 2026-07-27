@@ -38,6 +38,7 @@ embed_1 = (
     ' `^randome`\n'
     ' `^vote`\n'
     ' `^cheer`\n'
+    ' `^minesweeper` [width] [height] [mines]\n'
     ' `^ban` <mention someone> (No need type < or >)\n'
     ' `^kick`<mention someone>\n'
     ' `^unban`<Username#UserNumber>\n'
@@ -81,6 +82,33 @@ rules_ = ("\n**1. Follow Discord's TOS**\n"
 ">    No brightly flashing pictures to induce an epileptic attack\n"
 "**12. Use English only**\n"
 ">    We cannot easily moderate chats in different languages, sorry. English only.\n")
+
+NUMBER_EMOJIS = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣']
+MINE_EMOJI = '💣'
+
+def generate_minesweeper(width, height, mines):
+  total_cells = width * height
+  mine_positions = set(random.sample(range(total_cells), mines))
+
+  rows = []
+  for row in range(height):
+    cells = []
+    for col in range(width):
+      idx = row * width + col
+      if idx in mine_positions:
+        cells.append(MINE_EMOJI)
+      else:
+        count = 0
+        for dr in (-1, 0, 1):
+          for dc in (-1, 0, 1):
+            if dr == 0 and dc == 0:
+              continue
+            nr, nc = row + dr, col + dc
+            if 0 <= nr < height and 0 <= nc < width and (nr * width + nc) in mine_positions:
+              count += 1
+        cells.append(NUMBER_EMOJIS[count])
+    rows.append(''.join(f'||{cell}||' for cell in cells))
+  return '\n'.join(rows)
 
 def get_quote():
   response = requests.get("https://zenquotes.io/api/random")
@@ -171,6 +199,19 @@ async def unban(ctx, *, member):
 async def cheer(ctx):
   randomcheer = random.choice(Cheer)
   await ctx.send(ctx.author.mention + (" ") + randomcheer)
+
+@client.command()
+async def minesweeper(ctx, width: int = 8, height: int = 8, mines: int = 10):
+  width = max(2, min(width, 10))
+  height = max(2, min(height, 10))
+  mines = max(1, min(mines, width * height - 1))
+  board = generate_minesweeper(width, height, mines)
+  await ctx.send(f'{ctx.author.mention} Minesweeper ({width}x{height}, {mines} mines) - click the spoilers to reveal!\n{board}')
+
+@minesweeper.error
+async def minesweeper_error(ctx, error):
+  if isinstance(error, commands.BadArgument):
+    await ctx.send('Usage: `^minesweeper [width] [height] [mines]` (all optional, max 10x10)')
 
 keep_alive()
 client.run(os.getenv('Hi'))
