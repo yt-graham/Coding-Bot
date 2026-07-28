@@ -132,6 +132,31 @@
     letter-spacing: 0.08em;
     flex-shrink: 0;
   }
+  .masthead-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .theme-toggle {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid var(--chassis-lo);
+    background: var(--chassis);
+    color: var(--ink);
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    box-shadow: inset 0 1px 0 var(--chassis-hi);
+  }
+  .theme-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
 
   .motto {
     background: var(--ribbon);
@@ -444,8 +469,18 @@
     font-size: 13px;
     color: var(--ink);
   }
+  .lb-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--body-font);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-dim);
+  }
   .lb-date {
-    margin-left: auto;
     font-family: var(--face-font);
     font-size: 10px;
     color: var(--ink-dim);
@@ -462,6 +497,77 @@
     font-size: 10px;
     color: var(--ink-dim);
   }
+
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(6,10,7,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 50;
+  }
+  .modal-backdrop[hidden] { display: none; }
+  .modal {
+    background: var(--chassis);
+    border-radius: 14px;
+    padding: 20px;
+    max-width: 320px;
+    width: 100%;
+    box-shadow: 0 20px 60px -20px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .modal h2 {
+    margin: 0;
+    font-family: var(--face-font);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .modal p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--ink-dim);
+    line-height: 1.4;
+  }
+  .modal input[type="text"] {
+    font-family: var(--body-font);
+    font-size: 14px;
+    padding: 9px 11px;
+    border-radius: 8px;
+    border: 1px solid var(--chassis-lo);
+    background: var(--cell-revealed);
+    color: var(--ink);
+  }
+  .modal input[type="text"]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+  .modal-actions button {
+    font-family: var(--body-font);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--chassis-lo);
+    background: var(--chassis);
+    color: var(--ink-dim);
+    cursor: pointer;
+  }
+  .modal-actions button.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
 </style>
 
 <div class="rig">
@@ -473,7 +579,10 @@
         <h1>Minesweeper</h1>
       </div>
     </div>
-    <span class="tag" id="statusTag">ARMED</span>
+    <div class="masthead-right">
+      <span class="tag" id="statusTag">ARMED</span>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark mode">🌙</button>
+    </div>
   </div>
 
   <div class="motto">Aspire &amp; Grow</div>
@@ -526,6 +635,18 @@
   </div>
 </div>
 
+<div class="modal-backdrop" id="lbModalBackdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lbModalTitle">
+    <h2 id="lbModalTitle">You made the leaderboard!</h2>
+    <p id="lbModalMsg">Rank #1. Add a nickname? (optional)</p>
+    <input type="text" id="lbNameInput" placeholder="Your nickname" maxlength="16" autocomplete="off">
+    <div class="modal-actions">
+      <button type="button" id="lbModalSkip">Skip</button>
+      <button type="button" class="primary" id="lbModalSave">Save</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function () {
   "use strict";
@@ -550,6 +671,12 @@
   var lbConfigLabel = document.getElementById("lbConfigLabel");
   var lbList = document.getElementById("lbList");
   var lbTabs = document.querySelectorAll(".lb-tab");
+  var themeToggle = document.getElementById("themeToggle");
+  var lbModalBackdrop = document.getElementById("lbModalBackdrop");
+  var lbModalMsg = document.getElementById("lbModalMsg");
+  var lbNameInput = document.getElementById("lbNameInput");
+  var lbModalSkip = document.getElementById("lbModalSkip");
+  var lbModalSave = document.getElementById("lbModalSave");
 
   var state = null;
   var timerId = null;
@@ -557,7 +684,75 @@
   var currentLevel = "beginner";
   var currentMines = null;
   var lbActiveRange = "today";
+  var pendingRecordId = null;
   var LB_KEY = "minesweeper_scores_v1";
+  var THEME_KEY = "minesweeper_theme";
+  var NICK_KEY = "minesweeper_nickname";
+
+  function effectiveTheme() {
+    var attr = document.documentElement.getAttribute("data-theme");
+    if (attr === "dark" || attr === "light") return attr;
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+
+  function applyTheme(theme) {
+    if (theme === "dark" || theme === "light") {
+      document.documentElement.setAttribute("data-theme", theme);
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+    }
+    var eff = effectiveTheme();
+    themeToggle.textContent = eff === "dark" ? "☀️" : "🌙";
+    themeToggle.setAttribute("aria-label", eff === "dark" ? "Switch to light mode" : "Switch to dark mode");
+  }
+
+  var savedTheme = null;
+  try { savedTheme = localStorage.getItem(THEME_KEY); } catch (e) {}
+  applyTheme(savedTheme);
+
+  themeToggle.addEventListener("click", function () {
+    var next = effectiveTheme() === "dark" ? "light" : "dark";
+    applyTheme(next);
+    try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+  });
+
+  function getSavedNickname() {
+    try { return localStorage.getItem(NICK_KEY) || ""; } catch (e) { return ""; }
+  }
+
+  function setSavedNickname(name) {
+    try { localStorage.setItem(NICK_KEY, name); } catch (e) {}
+  }
+
+  function openLeaderboardModal(rank, configLabel) {
+    lbModalMsg.textContent = "Rank #" + rank + " at " + configLabel + ". Add a nickname? (optional)";
+    lbNameInput.value = getSavedNickname();
+    lbModalBackdrop.hidden = false;
+    lbNameInput.focus();
+  }
+
+  function closeLeaderboardModal() {
+    lbModalBackdrop.hidden = true;
+    pendingRecordId = null;
+  }
+
+  lbModalSkip.addEventListener("click", closeLeaderboardModal);
+  lbModalBackdrop.addEventListener("click", function (e) {
+    if (e.target === lbModalBackdrop) closeLeaderboardModal();
+  });
+  lbModalSave.addEventListener("click", function () {
+    var name = lbNameInput.value.trim().slice(0, 16);
+    if (pendingRecordId != null) {
+      updateRecordName(pendingRecordId, name);
+      if (name) setSavedNickname(name);
+      renderLeaderboard();
+    }
+    closeLeaderboardModal();
+  });
+  lbNameInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); lbModalSave.click(); }
+    if (e.key === "Escape") closeLeaderboardModal();
+  });
 
   function pad3(n) {
     n = Math.max(0, Math.min(999, n));
@@ -687,8 +882,19 @@
   }
 
   function saveScoreRecord(rec) {
+    rec.id = Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+    rec.name = null;
     var all = loadScores();
     all.push(rec);
+    try { localStorage.setItem(LB_KEY, JSON.stringify(all)); } catch (e) {}
+    return rec;
+  }
+
+  function updateRecordName(id, name) {
+    var all = loadScores();
+    for (var i = 0; i < all.length; i++) {
+      if (all[i].id === id) { all[i].name = name; break; }
+    }
     try { localStorage.setItem(LB_KEY, JSON.stringify(all)); } catch (e) {}
   }
 
@@ -729,6 +935,9 @@
       var rank = document.createElement("span");
       rank.className = "lb-rank";
       rank.textContent = (i + 1) + ".";
+      var name = document.createElement("span");
+      name.className = "lb-name";
+      name.textContent = rec.name || "—";
       var time = document.createElement("span");
       time.className = "lb-time";
       time.textContent = formatTime(rec.time);
@@ -736,6 +945,7 @@
       date.className = "lb-date";
       date.textContent = formatDate(rec.ts);
       li.appendChild(rank);
+      li.appendChild(name);
       li.appendChild(time);
       li.appendChild(date);
       lbList.appendChild(li);
@@ -864,13 +1074,24 @@
           }
         }
       }
-      saveScoreRecord({
+      var rec = saveScoreRecord({
         config: configKey(state.rows, state.cols, state.mines),
         time: state.elapsed,
         ts: Date.now(),
         dateKey: todayKey()
       });
       renderLeaderboard();
+
+      var allTimeForConfig = loadScores().filter(function (r) { return r.config === rec.config; });
+      allTimeForConfig.sort(function (a, b) { return a.time - b.time; });
+      var rank = -1;
+      for (var i = 0; i < allTimeForConfig.length && i < 10; i++) {
+        if (allTimeForConfig[i].id === rec.id) { rank = i + 1; break; }
+      }
+      if (rank !== -1) {
+        pendingRecordId = rec.id;
+        openLeaderboardModal(rank, state.rows + "×" + state.cols + " · " + state.mines + " mines");
+      }
     } else {
       faceBtn.textContent = "\u{1F480}";
       statusTag.textContent = "DETONATED";
