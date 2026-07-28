@@ -74,7 +74,7 @@
 
   .rig {
     width: 100%;
-    max-width: 460px;
+    max-width: min(94vw, var(--rig-max, 460px));
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -266,6 +266,11 @@
     flex-shrink: 0;
   }
   .face:active { box-shadow: inset 1px 1px 3px var(--cell-raised-lo); }
+
+  .board-scroll {
+    overflow-x: auto;
+    border-radius: 8px;
+  }
 
   .board {
     display: grid;
@@ -497,7 +502,9 @@
         <span class="cap">TIME</span>
       </div>
     </div>
-    <div class="board" id="board" role="grid" aria-label="Minesweeper board"></div>
+    <div class="board-scroll">
+      <div class="board" id="board" role="grid" aria-label="Minesweeper board"></div>
+    </div>
   </div>
 
   <div class="footer">
@@ -635,6 +642,8 @@
     minesRange.value = mines;
     minesRangeVal.textContent = mines;
 
+    document.documentElement.style.setProperty("--rig-max", (cfg.cols * 34 + 40) + "px");
+
     state = {
       level: level,
       rows: cfg.rows,
@@ -751,7 +760,9 @@
 
   function renderBoard() {
     boardEl.style.gridTemplateColumns = "repeat(" + state.cols + ", 1fr)";
-    boardEl.style.width = "min(100%, " + (state.cols * 34) + "px)";
+    var minPx = state.cols * 24;
+    var idealPx = state.cols * 34;
+    boardEl.style.width = "clamp(" + minPx + "px, 100%, " + idealPx + "px)";
     boardEl.innerHTML = "";
     for (var r = 0; r < state.rows; r++) {
       for (var c = 0; c < state.cols; c++) {
