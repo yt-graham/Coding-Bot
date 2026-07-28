@@ -74,14 +74,14 @@
 
   .rig {
     width: 100%;
-    max-width: min(96vw, calc(var(--rig-max, 460px) + 296px));
+    max-width: min(96vw, 900px);
     display: flex;
     flex-direction: column;
     gap: 14px;
   }
   @media (min-width: 760px) {
     .rig {
-      max-width: min(70vw, 1700px);
+      max-width: min(90vw, 2200px);
     }
   }
 
@@ -94,12 +94,12 @@
   }
   .sidebar {
     width: 100%;
-    max-width: min(94vw, var(--rig-max, 460px));
+    max-width: min(94vw, 900px);
     order: 2;
   }
   .game-col {
     width: 100%;
-    max-width: min(94vw, var(--rig-max, 460px));
+    max-width: min(94vw, 900px);
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -135,7 +135,7 @@
       justify-content: center;
       width: auto;
       min-width: 160px;
-      min-height: 600px;
+      min-height: min(600px, 70vh);
       flex: 1 1 auto;
       order: -1;
       border: 1px dashed var(--chassis-lo);
@@ -780,6 +780,8 @@
   };
 
   var boardEl = document.getElementById("board");
+  var boardScrollEl = document.querySelector(".board-scroll");
+  var footerEl = document.querySelector(".footer");
   var minesNumEl = document.getElementById("minesNum");
   var timeNumEl = document.getElementById("timeNum");
   var minesLedEl = document.getElementById("minesLed");
@@ -963,8 +965,6 @@
     cfg = cfg || currentConfig;
     var mines = Math.max(1, Math.min(cfg.rows * cfg.cols - 9, cfg.mines));
     currentConfig = { rows: cfg.rows, cols: cfg.cols, mines: mines };
-
-    document.documentElement.style.setProperty("--rig-max", (cfg.cols * 38 + 40) + "px");
 
     state = {
       rows: cfg.rows,
@@ -1153,7 +1153,6 @@
 
   function renderBoard() {
     boardEl.style.gridTemplateColumns = "repeat(" + state.cols + ", 1fr)";
-    boardEl.style.width = "min(100%, " + (state.cols * 38) + "px)";
     boardEl.innerHTML = "";
     for (var r = 0; r < state.rows; r++) {
       for (var c = 0; c < state.cols; c++) {
@@ -1166,6 +1165,28 @@
         boardEl.appendChild(btn);
       }
     }
+    fitBoardToViewport();
+  }
+
+  function fitBoardToViewport() {
+    if (!state) return;
+    var rows = state.rows, cols = state.cols;
+
+    boardEl.style.width = "";
+    var availWidth = boardScrollEl.clientWidth || Math.floor(window.innerWidth * 0.8);
+
+    var scrollTop = boardScrollEl.getBoundingClientRect().top;
+    var footerH = footerEl ? footerEl.getBoundingClientRect().height : 0;
+    var bottomPad = parseFloat(getComputedStyle(document.body).paddingBottom) || 16;
+    var availHeight = window.innerHeight - scrollTop - footerH - bottomPad - 16;
+    availHeight = Math.max(availHeight, 140);
+
+    var cellByWidth = Math.floor(availWidth / cols);
+    var cellByHeight = Math.floor(availHeight / rows);
+    var cell = Math.min(cellByWidth, cellByHeight, 56);
+    cell = Math.max(cell, 14);
+
+    boardEl.style.width = (cell * cols) + "px";
   }
 
   function drawCell(r, c) {
@@ -1467,6 +1488,12 @@
       lbActiveRange = t.getAttribute("data-range");
       renderLeaderboard();
     });
+  });
+
+  var resizeTimer = null;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(fitBoardToViewport, 120);
   });
 
   newGame(LEVELS[currentLevel]);
