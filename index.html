@@ -1,62 +1,64 @@
-<title>Minesweeper</title>
+<title>Clementi Town Secondary School Minesweeper</title>
 <style>
   :root {
-    --bg: #eef0f3;
-    --chassis: #d7dce3;
-    --chassis-hi: #f3f5f8;
-    --chassis-lo: #b7bec9;
-    --cell-raised: #dde2e8;
-    --cell-raised-hi: #f6f8fa;
-    --cell-raised-lo: #aeb5c0;
-    --cell-revealed: #c7cdd6;
-    --cell-revealed-edge: #b3bac5;
-    --led-bg: #241a0c;
-    --led-amber: #ff9d1f;
-    --led-amber-dim: #7a5518;
-    --ink: #232830;
-    --ink-dim: #656e7a;
-    --flag-red: #e0503f;
-    --mine-black: #16181c;
-    --accent: #ff9d1f;
-    --n1: #2f6fed; --n2: #2a9d5c; --n3: #d1443a; --n4: #7c4fd6;
-    --n5: #b5486a; --n6: #1f9e97; --n7: #232830; --n8: #7b8494;
+    --bg: #f3f6f3;
+    --chassis: #e2e9e3;
+    --chassis-hi: #ffffff;
+    --chassis-lo: #c2ccc3;
+    --cell-raised: #e8ede8;
+    --cell-raised-hi: #ffffff;
+    --cell-raised-lo: #b7c2b8;
+    --cell-revealed: #d4ddd5;
+    --cell-revealed-edge: #bec9bf;
+    --led-bg: #0c1712;
+    --led-glow: #34c77a;
+    --led-glow-dim: #1c5c3c;
+    --ink: #142219;
+    --ink-dim: #57685c;
+    --flag-red: #d94f3d;
+    --mine-black: #15181a;
+    --ribbon: #0d0f0d;
+    --accent: #1b6b41;
+    --n1: #2f6fed; --n2: #b3841d; --n3: #d1443a; --n4: #7c4fd6;
+    --n5: #b5486a; --n6: #1f9e97; --n7: #142219; --n8: #7b8494;
     --face-font: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, Consolas, monospace;
     --body-font: -apple-system, "Segoe UI", system-ui, Roboto, sans-serif;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #14171c;
-      --chassis: #1c2129;
-      --chassis-hi: #2c333d;
-      --chassis-lo: #0c0e11;
-      --cell-raised: #2a323d;
-      --cell-raised-hi: #3c4653;
-      --cell-raised-lo: #14171b;
-      --cell-revealed: #12151a;
-      --cell-revealed-edge: #090b0d;
-      --led-bg: #1a1008;
-      --ink: #e8ebef;
-      --ink-dim: #8b93a1;
-      --mine-black: #050607;
-      --n1: #5b9dff; --n2: #5bd68a; --n3: #ff6b6b; --n4: #b18aff;
-      --n5: #e394ac; --n6: #4dd0c8; --n7: #e8ebef; --n8: #8b93a1;
+      --bg: #0d1310;
+      --chassis: #172019;
+      --chassis-hi: #29352c;
+      --chassis-lo: #080b09;
+      --cell-raised: #1e2a21;
+      --cell-raised-hi: #324434;
+      --cell-raised-lo: #0b100c;
+      --cell-revealed: #101a13;
+      --cell-revealed-edge: #070a08;
+      --led-bg: #071009;
+      --ink: #e9f0ea;
+      --ink-dim: #8fa093;
+      --mine-black: #06070a;
+      --accent: #2f8a56;
+      --n1: #5b9dff; --n2: #f0c14b; --n3: #ff6b6b; --n4: #b18aff;
+      --n5: #e394ac; --n6: #4dd0c8; --n7: #e9f0ea; --n8: #93a196;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #14171c; --chassis: #1c2129; --chassis-hi: #2c333d; --chassis-lo: #0c0e11;
-    --cell-raised: #2a323d; --cell-raised-hi: #3c4653; --cell-raised-lo: #14171b;
-    --cell-revealed: #12151a; --cell-revealed-edge: #090b0d; --led-bg: #1a1008;
-    --ink: #e8ebef; --ink-dim: #8b93a1; --mine-black: #050607;
-    --n1: #5b9dff; --n2: #5bd68a; --n3: #ff6b6b; --n4: #b18aff;
-    --n5: #e394ac; --n6: #4dd0c8; --n7: #e8ebef; --n8: #8b93a1;
+    --bg: #0d1310; --chassis: #172019; --chassis-hi: #29352c; --chassis-lo: #080b09;
+    --cell-raised: #1e2a21; --cell-raised-hi: #324434; --cell-raised-lo: #0b100c;
+    --cell-revealed: #101a13; --cell-revealed-edge: #070a08; --led-bg: #071009;
+    --ink: #e9f0ea; --ink-dim: #8fa093; --mine-black: #06070a; --accent: #2f8a56;
+    --n1: #5b9dff; --n2: #f0c14b; --n3: #ff6b6b; --n4: #b18aff;
+    --n5: #e394ac; --n6: #4dd0c8; --n7: #e9f0ea; --n8: #93a196;
   }
   :root[data-theme="light"] {
-    --bg: #eef0f3; --chassis: #d7dce3; --chassis-hi: #f3f5f8; --chassis-lo: #b7bec9;
-    --cell-raised: #dde2e8; --cell-raised-hi: #f6f8fa; --cell-raised-lo: #aeb5c0;
-    --cell-revealed: #c7cdd6; --cell-revealed-edge: #b3bac5; --led-bg: #241a0c;
-    --ink: #232830; --ink-dim: #656e7a; --mine-black: #16181c;
-    --n1: #2f6fed; --n2: #2a9d5c; --n3: #d1443a; --n4: #7c4fd6;
-    --n5: #b5486a; --n6: #1f9e97; --n7: #232830; --n8: #7b8494;
+    --bg: #f3f6f3; --chassis: #e2e9e3; --chassis-hi: #ffffff; --chassis-lo: #c2ccc3;
+    --cell-raised: #e8ede8; --cell-raised-hi: #ffffff; --cell-raised-lo: #b7c2b8;
+    --cell-revealed: #d4ddd5; --cell-revealed-edge: #bec9bf; --led-bg: #0c1712;
+    --ink: #142219; --ink-dim: #57685c; --mine-black: #15181a; --accent: #1b6b41;
+    --n1: #2f6fed; --n2: #b3841d; --n3: #d1443a; --n4: #7c4fd6;
+    --n5: #b5486a; --n6: #1f9e97; --n7: #142219; --n8: #7b8494;
   }
 
   * { box-sizing: border-box; }
@@ -80,16 +82,44 @@
 
   .masthead {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     gap: 12px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  .crest {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+  }
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+  .brand-eyebrow {
+    font-family: var(--face-font);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .masthead h1 {
     margin: 0;
     font-family: var(--face-font);
     font-size: 15px;
     font-weight: 700;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--ink);
   }
@@ -98,6 +128,21 @@
     font-size: 11px;
     color: var(--ink-dim);
     letter-spacing: 0.08em;
+    flex-shrink: 0;
+  }
+
+  .motto {
+    background: var(--ribbon);
+    color: #f5f7f5;
+    font-family: var(--face-font);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 7px 10px 10px;
+    margin-top: -4px;
+    clip-path: polygon(0% 0%, 100% 0%, 100% 78%, 92% 100%, 8% 100%, 0% 78%);
   }
 
   .diffs {
@@ -188,15 +233,15 @@
     font-size: 26px;
     font-weight: 700;
     letter-spacing: 0.06em;
-    color: var(--led-amber);
-    text-shadow: 0 0 8px rgba(255,157,31,0.55);
+    color: var(--led-glow);
+    text-shadow: 0 0 8px rgba(52,199,122,0.55);
   }
   .led .cap {
     display: block;
     font-family: var(--face-font);
     font-size: 9px;
     letter-spacing: 0.16em;
-    color: var(--led-amber-dim);
+    color: var(--led-glow-dim);
     margin-top: 1px;
   }
   .led.dead .num { color: var(--flag-red); text-shadow: 0 0 8px rgba(224,80,63,0.55); }
@@ -228,6 +273,9 @@
     padding: 6px;
     box-shadow: inset 0 2px 6px rgba(0,0,0,0.35);
     touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
 
   .cell {
@@ -255,7 +303,11 @@
   }
   .cell.revealed:active { box-shadow: inset 0 0 0 1px var(--cell-revealed-edge); }
   .cell.mine { background: var(--flag-red); }
-  .cell.mine.detonated { background: var(--flag-red); }
+  .cell.mine.detonated {
+    background: #200a07;
+    box-shadow: inset 0 0 0 2px var(--flag-red), 0 0 14px 2px rgba(217,79,61,0.7);
+  }
+  .cell.mine.detonated .dot { background: var(--flag-red); }
   .cell .dot { width: 46%; height: 46%; border-radius: 50%; background: var(--mine-black); position: relative; }
   .cell .dot::after {
     content: ""; position: absolute; inset: -22%;
@@ -407,9 +459,26 @@
 
 <div class="rig">
   <div class="masthead">
-    <h1>Minesweeper</h1>
+    <div class="brand">
+      <svg class="crest" viewBox="0 0 120 120" role="img" aria-label="Clementi Town Secondary School crest">
+        <path d="M22 16 C22 9 28 4 35 4 L85 4 C92 4 98 9 98 16 L98 62 C98 80 88 93 74 100 L60 106 L46 100 C32 93 22 80 22 62 Z" fill="#ffffff" stroke="#1b6b41" stroke-width="5"/>
+        <path d="M32 18 Q60 27 88 18 L88 25 Q60 34 32 25 Z" fill="#1b6b41"/>
+        <path d="M35 30 Q60 39 85 30 L85 37 Q60 46 35 37 Z" fill="#1b6b41"/>
+        <path d="M39 42 Q60 51 81 42 L81 49 Q60 58 39 49 Z" fill="#1b6b41"/>
+        <path d="M44 54 Q60 63 76 54 L76 61 Q60 70 44 61 Z" fill="#1b6b41"/>
+        <rect x="56" y="60" width="8" height="32" fill="#1b6b41"/>
+        <text x="37" y="93" font-family="Georgia, 'Times New Roman', serif" font-size="36" font-weight="700" fill="#1b6b41" text-anchor="middle">C</text>
+        <text x="83" y="93" font-family="Georgia, 'Times New Roman', serif" font-size="36" font-weight="700" fill="#1b6b41" text-anchor="middle">S</text>
+      </svg>
+      <div class="brand-text">
+        <span class="brand-eyebrow">Clementi Town Sec. School</span>
+        <h1>Minesweeper</h1>
+      </div>
+    </div>
     <span class="tag" id="statusTag">ARMED</span>
   </div>
+
+  <div class="motto">Aspire &amp; Grow</div>
 
   <div class="diffs" role="group" aria-label="Difficulty">
     <button type="button" data-level="beginner" aria-pressed="true">Beginner</button>
