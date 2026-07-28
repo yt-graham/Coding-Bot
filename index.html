@@ -1,4 +1,4 @@
-<title>Clementi Town Secondary School Minesweeper</title>
+<title>Clementi Town Secondary School Mine Sweeper</title>
 <style>
   :root {
     --bg: #f3f6f3;
@@ -266,32 +266,6 @@
     outline-offset: 2px;
   }
 
-  .minecfg {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 2px 4px;
-  }
-  .minecfg label {
-    font-family: var(--face-font);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--ink-dim);
-  }
-  .minecfg input[type="range"] {
-    flex: 1;
-    accent-color: var(--accent);
-  }
-  .minecfg output {
-    font-family: var(--face-font);
-    font-variant-numeric: tabular-nums;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--ink);
-    min-width: 24px;
-    text-align: right;
-  }
 
   .panel {
     background: var(--chassis);
@@ -307,6 +281,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
     gap: 10px;
     padding: 8px 8px 12px 8px;
   }
@@ -633,6 +608,42 @@
     border-color: var(--accent);
     color: #fff;
   }
+  .custom-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .custom-fields label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-dim);
+  }
+  .modal input[type="number"] {
+    font-family: var(--body-font);
+    font-size: 14px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--chassis-lo);
+    background: var(--cell-revealed);
+    color: var(--ink);
+    width: 84px;
+  }
+  .modal input[type="number"]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  .custom-summary {
+    margin: 0;
+    font-family: var(--face-font);
+    font-size: 11px;
+    color: var(--ink-dim);
+    background: var(--cell-revealed);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
 </style>
 
 <div class="rig">
@@ -641,11 +652,11 @@
       <img class="crest" src="data:image/webp;base64,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" alt="Clementi Town Secondary School crest" width="256" height="256">
       <div class="brand-text">
         <span class="brand-eyebrow">Clementi Town Sec. School</span>
-        <h1>Minesweeper</h1>
+        <h1>Mine Sweeper</h1>
       </div>
     </div>
     <div class="masthead-right">
-      <span class="tag" id="statusTag">ARMED</span>
+      <span class="tag" id="statusTag">Status: ARMED</span>
       <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark mode">🌙</button>
     </div>
   </div>
@@ -683,12 +694,7 @@
         <button type="button" data-level="beginner" aria-pressed="true">Beginner</button>
         <button type="button" data-level="intermediate" aria-pressed="false">Intermediate</button>
         <button type="button" data-level="expert" aria-pressed="false">Expert</button>
-      </div>
-
-      <div class="minecfg">
-        <label for="minesRange">Mines</label>
-        <input type="range" id="minesRange" min="5" max="30" step="5" value="10" aria-label="Number of mines">
-        <output id="minesRangeVal" for="minesRange">10</output>
+        <button type="button" data-level="custom" aria-pressed="false">Custom</button>
       </div>
 
       <div class="panel">
@@ -729,6 +735,22 @@
   </div>
 </div>
 
+<div class="modal-backdrop" id="customModalBackdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="customModalTitle">
+    <h2 id="customModalTitle">Custom Board</h2>
+    <div class="custom-fields">
+      <label>Rows <input type="number" id="customRows" min="5" max="40" value="9" inputmode="numeric"></label>
+      <label>Columns <input type="number" id="customCols" min="5" max="40" value="9" inputmode="numeric"></label>
+      <label>Mines <input type="number" id="customMines" min="1" value="10" inputmode="numeric"></label>
+    </div>
+    <p class="custom-summary" id="customSummary">Board: 9×9 (81 cells) · Mines: 10 · Density: 12.3%</p>
+    <div class="modal-actions">
+      <button type="button" id="customModalCancel">Cancel</button>
+      <button type="button" class="primary" id="customModalPlay">Play</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function () {
   "use strict";
@@ -748,8 +770,13 @@
   var statusTag = document.getElementById("statusTag");
   var flagModeBtn = document.getElementById("flagModeBtn");
   var diffButtons = document.querySelectorAll(".diffs button");
-  var minesRange = document.getElementById("minesRange");
-  var minesRangeVal = document.getElementById("minesRangeVal");
+  var customModalBackdrop = document.getElementById("customModalBackdrop");
+  var customRowsInput = document.getElementById("customRows");
+  var customColsInput = document.getElementById("customCols");
+  var customMinesInput = document.getElementById("customMines");
+  var customSummary = document.getElementById("customSummary");
+  var customModalCancel = document.getElementById("customModalCancel");
+  var customModalPlay = document.getElementById("customModalPlay");
   var lbConfigLabel = document.getElementById("lbConfigLabel");
   var lbList = document.getElementById("lbList");
   var lbNote = document.getElementById("lbNote");
@@ -765,7 +792,7 @@
   var timerId = null;
   var flagMode = false;
   var currentLevel = "beginner";
-  var currentMines = null;
+  var currentConfig = { rows: 9, cols: 9, mines: 10 };
   var lbActiveRange = "today";
   var pendingRecordId = null;
   var pendingRemote = false;
@@ -914,28 +941,14 @@
     return placed;
   }
 
-  function mineBounds(rows, cols) {
-    var cells = rows * cols;
-    var max = Math.max(10, Math.floor((cells * 0.4) / 5) * 5);
-    return { min: 5, max: max };
-  }
-
-  function newGame(level, minesOverride) {
-    var cfg = LEVELS[level];
-    var bounds = mineBounds(cfg.rows, cfg.cols);
-    var mines = minesOverride != null ? minesOverride : cfg.mines;
-    mines = Math.max(bounds.min, Math.min(bounds.max, mines));
-    currentMines = mines;
-
-    minesRange.min = bounds.min;
-    minesRange.max = bounds.max;
-    minesRange.value = mines;
-    minesRangeVal.textContent = mines;
+  function newGame(cfg) {
+    cfg = cfg || currentConfig;
+    var mines = Math.max(1, Math.min(cfg.rows * cfg.cols - 9, cfg.mines));
+    currentConfig = { rows: cfg.rows, cols: cfg.cols, mines: mines };
 
     document.documentElement.style.setProperty("--rig-max", (cfg.cols * 34 + 40) + "px");
 
     state = {
-      level: level,
       rows: cfg.rows,
       cols: cfg.cols,
       mines: mines,
@@ -953,7 +966,7 @@
     minesLedEl.classList.remove("dead", "won");
     timeLedEl.classList.remove("dead", "won");
     faceBtn.textContent = "🙂";
-    statusTag.textContent = "ARMED";
+    statusTag.textContent = "Status: ARMED";
     renderBoard();
     renderLeaderboard();
   }
@@ -1212,7 +1225,7 @@
     stopTimer();
     if (won) {
       faceBtn.textContent = "\u{1F60E}";
-      statusTag.textContent = "CLEARED";
+      statusTag.textContent = "Status: CLEARED";
       minesLedEl.classList.add("won");
       timeLedEl.classList.add("won");
       minesNumEl.textContent = pad3(0);
@@ -1235,7 +1248,7 @@
       });
     } else {
       faceBtn.textContent = "\u{1F480}";
-      statusTag.textContent = "DETONATED";
+      statusTag.textContent = "Status: DETONATED";
       minesLedEl.classList.add("dead");
       timeLedEl.classList.add("dead");
       revealAllMines(detonatedR, detonatedC);
@@ -1359,22 +1372,74 @@
     flagModeBtn.textContent = flagMode ? "\u{1F6A9} Flagging" : "\u{1F6A9} Flag mode";
   });
 
-  faceBtn.addEventListener("click", function () { newGame(currentLevel, currentMines); });
+  faceBtn.addEventListener("click", function () { newGame(currentConfig); });
+
+  function setActiveDiffButton(level) {
+    diffButtons.forEach(function (x) {
+      x.setAttribute("aria-pressed", x.getAttribute("data-level") === level ? "true" : "false");
+    });
+  }
 
   diffButtons.forEach(function (b) {
     b.addEventListener("click", function () {
-      diffButtons.forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
-      b.setAttribute("aria-pressed", "true");
-      currentLevel = b.getAttribute("data-level");
-      newGame(currentLevel);
+      var level = b.getAttribute("data-level");
+      if (level === "custom") {
+        openCustomModal();
+        return;
+      }
+      currentLevel = level;
+      setActiveDiffButton(level);
+      newGame(LEVELS[level]);
     });
   });
 
-  minesRange.addEventListener("input", function () {
-    minesRangeVal.textContent = minesRange.value;
+  function clampInt(val, min, max) {
+    val = parseInt(val, 10);
+    if (isNaN(val)) val = min;
+    return Math.max(min, Math.min(max, val));
+  }
+
+  function readCustomFields() {
+    var rows = clampInt(customRowsInput.value, 5, 40);
+    var cols = clampInt(customColsInput.value, 5, 40);
+    var maxMines = Math.max(1, rows * cols - 9);
+    var mines = clampInt(customMinesInput.value, 1, maxMines);
+    return { rows: rows, cols: cols, mines: mines, maxMines: maxMines };
+  }
+
+  function updateCustomSummary() {
+    var c = readCustomFields();
+    var density = ((c.mines / (c.rows * c.cols)) * 100).toFixed(1);
+    customSummary.textContent = "Board: " + c.rows + "×" + c.cols + " (" + (c.rows * c.cols) + " cells) · Mines: " + c.mines + " · Density: " + density + "%";
+  }
+
+  function openCustomModal() {
+    customRowsInput.value = currentConfig.rows;
+    customColsInput.value = currentConfig.cols;
+    customMinesInput.value = currentConfig.mines;
+    updateCustomSummary();
+    customModalBackdrop.hidden = false;
+    customRowsInput.focus();
+  }
+
+  function closeCustomModal() {
+    customModalBackdrop.hidden = true;
+    setActiveDiffButton(currentLevel);
+  }
+
+  [customRowsInput, customColsInput, customMinesInput].forEach(function (el) {
+    el.addEventListener("input", updateCustomSummary);
   });
-  minesRange.addEventListener("change", function () {
-    newGame(currentLevel, parseInt(minesRange.value, 10));
+  customModalCancel.addEventListener("click", closeCustomModal);
+  customModalBackdrop.addEventListener("click", function (e) {
+    if (e.target === customModalBackdrop) closeCustomModal();
+  });
+  customModalPlay.addEventListener("click", function () {
+    var c = readCustomFields();
+    currentLevel = "custom";
+    setActiveDiffButton("custom");
+    newGame({ rows: c.rows, cols: c.cols, mines: c.mines });
+    customModalBackdrop.hidden = true;
   });
 
   lbTabs.forEach(function (t) {
@@ -1386,6 +1451,6 @@
     });
   });
 
-  newGame(currentLevel);
+  newGame(LEVELS[currentLevel]);
 })();
 </script>
