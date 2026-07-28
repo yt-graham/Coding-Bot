@@ -1,0 +1,9 @@
+{
+  "name": "clementi-town-minesweeper",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Minesweeper with a Neon Postgres-backed leaderboard, deployed on Vercel.",
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4"
+  }
+}

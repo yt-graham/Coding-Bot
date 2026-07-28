@@ -631,7 +631,7 @@
       </div>
     </div>
     <ol class="lb-list" id="lbList"></ol>
-    <p class="lb-note">Draft leaderboard — best times are saved in this browser only, not a shared server.</p>
+    <p class="lb-note" id="lbNote">Checking for a shared leaderboard…</p>
   </div>
 </div>
 
@@ -670,6 +670,7 @@
   var minesRangeVal = document.getElementById("minesRangeVal");
   var lbConfigLabel = document.getElementById("lbConfigLabel");
   var lbList = document.getElementById("lbList");
+  var lbNote = document.getElementById("lbNote");
   var lbTabs = document.querySelectorAll(".lb-tab");
   var themeToggle = document.getElementById("themeToggle");
   var lbModalBackdrop = document.getElementById("lbModalBackdrop");
@@ -685,9 +686,20 @@
   var currentMines = null;
   var lbActiveRange = "today";
   var pendingRecordId = null;
+  var pendingRemote = false;
+  var remoteAvailable = null;
+  var lbRequestToken = 0;
   var LB_KEY = "minesweeper_scores_v1";
   var THEME_KEY = "minesweeper_theme";
   var NICK_KEY = "minesweeper_nickname";
+  var API_BASE = "/api";
+
+  function apiFetch(path, opts) {
+    return fetch(API_BASE + path, opts).then(function (res) {
+      if (!res.ok) throw new Error("bad status " + res.status);
+      return res.json();
+    });
+  }
 
   function effectiveTheme() {
     var attr = document.documentElement.getAttribute("data-theme");
@@ -743,9 +755,10 @@
   lbModalSave.addEventListener("click", function () {
     var name = lbNameInput.value.trim().slice(0, 16);
     if (pendingRecordId != null) {
-      updateRecordName(pendingRecordId, name);
+      submitNickname(pendingRecordId, pendingRemote, name).then(function () {
+        renderLeaderboard();
+      });
       if (name) setSavedNickname(name);
-      renderLeaderboard();
     }
     closeLeaderboardModal();
   });
@@ -872,7 +885,7 @@
     return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
   }
 
-  function loadScores() {
+  function loadScoresLocal() {
     try {
       var raw = localStorage.getItem(LB_KEY);
       return raw ? JSON.parse(raw) : [];
@@ -881,21 +894,57 @@
     }
   }
 
-  function saveScoreRecord(rec) {
+  function saveScoreRecordLocal(rec) {
     rec.id = Date.now() + "-" + Math.random().toString(36).slice(2, 8);
     rec.name = null;
-    var all = loadScores();
+    var all = loadScoresLocal();
     all.push(rec);
     try { localStorage.setItem(LB_KEY, JSON.stringify(all)); } catch (e) {}
     return rec;
   }
 
-  function updateRecordName(id, name) {
-    var all = loadScores();
+  function updateRecordNameLocal(id, name) {
+    var all = loadScoresLocal();
     for (var i = 0; i < all.length; i++) {
       if (all[i].id === id) { all[i].name = name; break; }
     }
     try { localStorage.setItem(LB_KEY, JSON.stringify(all)); } catch (e) {}
+  }
+
+  function localRankFor(rec) {
+    var all = loadScoresLocal().filter(function (r) { return r.config === rec.config; });
+    all.sort(function (a, b) { return a.time - b.time; });
+    for (var i = 0; i < all.length && i < 10; i++) {
+      if (all[i].id === rec.id) return i + 1;
+    }
+    return -1;
+  }
+
+  function submitScore(config, time) {
+    return apiFetch("/score", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ config: config, time: time })
+    }).then(function (data) {
+      remoteAvailable = true;
+      return { id: data.score.id, rank: data.rank, remote: true };
+    }).catch(function () {
+      remoteAvailable = false;
+      var rec = saveScoreRecordLocal({ config: config, time: time, ts: Date.now(), dateKey: todayKey() });
+      return { id: rec.id, rank: localRankFor(rec), remote: false };
+    });
+  }
+
+  function submitNickname(id, remote, name) {
+    if (remote) {
+      return apiFetch("/score?id=" + encodeURIComponent(id), {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name })
+      }).catch(function () {});
+    }
+    updateRecordNameLocal(id, name);
+    return Promise.resolve();
   }
 
   function formatTime(sec) {
@@ -909,21 +958,42 @@
   }
 
   function renderLeaderboard() {
+    var myToken = ++lbRequestToken;
     var key = configKey(state.rows, state.cols, state.mines);
+    var range = lbActiveRange;
     lbConfigLabel.textContent = state.rows + "×" + state.cols + " · " + state.mines + " mines";
 
-    var all = loadScores().filter(function (r) { return r.config === key; });
-    var list = lbActiveRange === "today"
-      ? all.filter(function (r) { return r.dateKey === todayKey(); })
-      : all.slice();
-    list.sort(function (a, b) { return a.time - b.time; });
-    list = list.slice(0, 10);
+    apiFetch("/leaderboard?config=" + encodeURIComponent(key) + "&range=" + range)
+      .then(function (data) {
+        remoteAvailable = true;
+        return data.scores.map(function (r) {
+          return { time: r.time, name: r.name, ts: new Date(r.ts).getTime() };
+        });
+      })
+      .catch(function () {
+        remoteAvailable = false;
+        var all = loadScoresLocal().filter(function (r) { return r.config === key; });
+        var list = range === "today"
+          ? all.filter(function (r) { return r.dateKey === todayKey(); })
+          : all.slice();
+        list.sort(function (a, b) { return a.time - b.time; });
+        return list.slice(0, 10);
+      })
+      .then(function (list) {
+        if (myToken !== lbRequestToken) return;
+        renderLeaderboardList(list, range);
+        lbNote.textContent = remoteAvailable
+          ? "Shared leaderboard — everyone playing this deployment sees the same scores."
+          : "Local leaderboard — no shared database reachable, scores are kept in this browser only.";
+      });
+  }
 
+  function renderLeaderboardList(list, range) {
     lbList.innerHTML = "";
     if (!list.length) {
       var empty = document.createElement("li");
       empty.className = "lb-empty";
-      empty.textContent = lbActiveRange === "today"
+      empty.textContent = range === "today"
         ? "No clears yet today at this setup."
         : "No clears yet at this setup.";
       lbList.appendChild(empty);
@@ -970,9 +1040,7 @@
 
   function renderBoard() {
     boardEl.style.gridTemplateColumns = "repeat(" + state.cols + ", 1fr)";
-    var minPx = state.cols * 24;
-    var idealPx = state.cols * 34;
-    boardEl.style.width = "clamp(" + minPx + "px, 100%, " + idealPx + "px)";
+    boardEl.style.width = "min(100%, " + (state.cols * 34) + "px)";
     boardEl.innerHTML = "";
     for (var r = 0; r < state.rows; r++) {
       for (var c = 0; c < state.cols; c++) {
@@ -1074,24 +1142,15 @@
           }
         }
       }
-      var rec = saveScoreRecord({
-        config: configKey(state.rows, state.cols, state.mines),
-        time: state.elapsed,
-        ts: Date.now(),
-        dateKey: todayKey()
+      var finishedRows = state.rows, finishedCols = state.cols, finishedMines = state.mines;
+      submitScore(configKey(finishedRows, finishedCols, finishedMines), state.elapsed).then(function (result) {
+        pendingRemote = result.remote;
+        renderLeaderboard();
+        if (result.rank !== -1 && result.rank <= 10) {
+          pendingRecordId = result.id;
+          openLeaderboardModal(result.rank, finishedRows + "×" + finishedCols + " · " + finishedMines + " mines");
+        }
       });
-      renderLeaderboard();
-
-      var allTimeForConfig = loadScores().filter(function (r) { return r.config === rec.config; });
-      allTimeForConfig.sort(function (a, b) { return a.time - b.time; });
-      var rank = -1;
-      for (var i = 0; i < allTimeForConfig.length && i < 10; i++) {
-        if (allTimeForConfig[i].id === rec.id) { rank = i + 1; break; }
-      }
-      if (rank !== -1) {
-        pendingRecordId = rec.id;
-        openLeaderboardModal(rank, state.rows + "×" + state.cols + " · " + state.mines + " mines");
-      }
     } else {
       faceBtn.textContent = "\u{1F480}";
       statusTag.textContent = "DETONATED";
