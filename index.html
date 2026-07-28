@@ -74,10 +74,75 @@
 
   .rig {
     width: 100%;
+    max-width: min(96vw, calc(var(--rig-max, 460px) + 296px));
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .layout {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    align-items: center;
+  }
+  .sidebar {
+    width: 100%;
+    max-width: min(94vw, var(--rig-max, 460px));
+    order: 2;
+  }
+  .game-col {
+    width: 100%;
     max-width: min(94vw, var(--rig-max, 460px));
     display: flex;
     flex-direction: column;
     gap: 14px;
+    order: 1;
+  }
+  @media (min-width: 760px) {
+    .layout {
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .sidebar {
+      width: 260px;
+      max-width: 260px;
+      flex: 0 0 260px;
+      order: 0;
+    }
+    .game-col {
+      width: auto;
+      flex: 1 1 auto;
+      min-width: 0;
+      order: 1;
+    }
+  }
+
+  .ad-rail {
+    display: none;
+  }
+  @media (min-width: 1100px) {
+    .ad-rail {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 160px;
+      min-height: 600px;
+      flex: 0 0 160px;
+      order: -1;
+      border: 1px dashed var(--chassis-lo);
+      border-radius: 14px;
+      background: var(--chassis);
+      color: var(--ink-dim);
+      font-family: var(--face-font);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 10px;
+    }
   }
 
   .masthead {
@@ -587,51 +652,68 @@
 
   <div class="motto">Aspire &amp; Grow</div>
 
-  <div class="diffs" role="group" aria-label="Difficulty">
-    <button type="button" data-level="beginner" aria-pressed="true">Beginner</button>
-    <button type="button" data-level="intermediate" aria-pressed="false">Intermediate</button>
-    <button type="button" data-level="expert" aria-pressed="false">Expert</button>
-  </div>
-
-  <div class="minecfg">
-    <label for="minesRange">Mines</label>
-    <input type="range" id="minesRange" min="5" max="30" step="5" value="10" aria-label="Number of mines">
-    <output id="minesRangeVal" for="minesRange">10</output>
-  </div>
-
-  <div class="panel">
-    <div class="dash">
-      <div class="led" id="minesLed">
-        <span class="num" id="minesNum">010</span>
-        <span class="cap">MINES</span>
-      </div>
-      <button class="face" id="faceBtn" aria-label="Restart">🙂</button>
-      <div class="led" id="timeLed">
-        <span class="num" id="timeNum">000</span>
-        <span class="cap">TIME</span>
-      </div>
+  <div class="layout">
+    <div class="ad-rail" aria-hidden="true">
+      <!--
+        Google AdSense placeholder (160x600 wide skyscraper).
+        Swap this div's contents for your real unit once approved, e.g.:
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+             data-ad-slot="XXXXXXXXXX" data-ad-format="vertical"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      -->
+      <span>Ad space<br>160×600</span>
     </div>
-    <div class="board-scroll">
-      <div class="board" id="board" role="grid" aria-label="Minesweeper board"></div>
-    </div>
-  </div>
 
-  <div class="footer">
-    <span class="hint mouse-hint">Click: reveal / chord &nbsp;·&nbsp; Right click: flag</span>
-    <span class="hint touch-hint">Tap: reveal / chord &nbsp;·&nbsp; Hold: flag</span>
-    <button class="flagmode" id="flagModeBtn" type="button" aria-pressed="false">🚩 Flag mode</button>
-  </div>
-
-  <div class="panel lb-panel">
-    <div class="lb-head">
-      <span class="lb-title">Leaderboard &nbsp;<span id="lbConfigLabel">9×9 · 10 mines</span></span>
-      <div class="lb-tabs" role="group" aria-label="Leaderboard range">
-        <button type="button" class="lb-tab" data-range="today" aria-pressed="true">Today</button>
-        <button type="button" class="lb-tab" data-range="alltime" aria-pressed="false">All-time</button>
+    <div class="sidebar">
+      <div class="panel lb-panel">
+        <div class="lb-head">
+          <span class="lb-title">Leaderboard &nbsp;<span id="lbConfigLabel">9×9 · 10 mines</span></span>
+          <div class="lb-tabs" role="group" aria-label="Leaderboard range">
+            <button type="button" class="lb-tab" data-range="today" aria-pressed="true">Today</button>
+            <button type="button" class="lb-tab" data-range="alltime" aria-pressed="false">All-time</button>
+          </div>
+        </div>
+        <ol class="lb-list" id="lbList"></ol>
+        <p class="lb-note" id="lbNote">Checking for a shared leaderboard…</p>
       </div>
     </div>
-    <ol class="lb-list" id="lbList"></ol>
-    <p class="lb-note" id="lbNote">Checking for a shared leaderboard…</p>
+
+    <div class="game-col">
+      <div class="diffs" role="group" aria-label="Difficulty">
+        <button type="button" data-level="beginner" aria-pressed="true">Beginner</button>
+        <button type="button" data-level="intermediate" aria-pressed="false">Intermediate</button>
+        <button type="button" data-level="expert" aria-pressed="false">Expert</button>
+      </div>
+
+      <div class="minecfg">
+        <label for="minesRange">Mines</label>
+        <input type="range" id="minesRange" min="5" max="30" step="5" value="10" aria-label="Number of mines">
+        <output id="minesRangeVal" for="minesRange">10</output>
+      </div>
+
+      <div class="panel">
+        <div class="dash">
+          <div class="led" id="minesLed">
+            <span class="num" id="minesNum">010</span>
+            <span class="cap">MINES</span>
+          </div>
+          <button class="face" id="faceBtn" aria-label="Restart">🙂</button>
+          <div class="led" id="timeLed">
+            <span class="num" id="timeNum">000</span>
+            <span class="cap">TIME</span>
+          </div>
+        </div>
+        <div class="board-scroll">
+          <div class="board" id="board" role="grid" aria-label="Minesweeper board"></div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <span class="hint mouse-hint">Click: reveal / chord &nbsp;·&nbsp; Right click: flag</span>
+        <span class="hint touch-hint">Tap: reveal / chord &nbsp;·&nbsp; Hold: flag</span>
+        <button class="flagmode" id="flagModeBtn" type="button" aria-pressed="false">🚩 Flag mode</button>
+      </div>
+    </div>
   </div>
 </div>
 
