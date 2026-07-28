@@ -63,7 +63,7 @@
 
   * { box-sizing: border-box; }
   html, body {
-    margin: 0; padding: 0; min-height: 100%;
+    margin: 0; padding: 0; min-height: 100%; width: 100%;
     background: var(--bg);
     color: var(--ink);
     font-family: var(--body-font);
@@ -78,6 +78,11 @@
     display: flex;
     flex-direction: column;
     gap: 14px;
+  }
+  @media (min-width: 760px) {
+    .rig {
+      max-width: min(70vw, 1700px);
+    }
   }
 
   .layout {
@@ -107,9 +112,9 @@
       justify-content: center;
     }
     .sidebar {
-      width: 260px;
-      max-width: 260px;
-      flex: 0 0 260px;
+      width: 320px;
+      max-width: 320px;
+      flex: 0 0 320px;
       order: 1;
     }
     .game-col {
@@ -239,10 +244,12 @@
 
   .diffs {
     display: flex;
+    flex-wrap: wrap;
     gap: 6px;
   }
   .diffs button {
-    flex: 1;
+    flex: 1 1 auto;
+    min-width: 84px;
     font-family: var(--body-font);
     font-size: 12px;
     font-weight: 600;
@@ -271,10 +278,18 @@
     background: var(--chassis);
     border-radius: 14px;
     padding: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     box-shadow:
       0 1px 0 var(--chassis-hi) inset,
       0 -1px 0 var(--chassis-lo) inset,
       0 10px 24px -12px rgba(0,0,0,0.45);
+  }
+  .panel .dash,
+  .panel .board-scroll {
+    width: 100%;
+    max-width: 100%;
   }
 
   .dash {
@@ -335,6 +350,8 @@
   .board-scroll {
     overflow-x: auto;
     border-radius: 8px;
+    display: flex;
+    justify-content: center;
   }
 
   .board {
@@ -946,7 +963,7 @@
     var mines = Math.max(1, Math.min(cfg.rows * cfg.cols - 9, cfg.mines));
     currentConfig = { rows: cfg.rows, cols: cfg.cols, mines: mines };
 
-    document.documentElement.style.setProperty("--rig-max", (cfg.cols * 34 + 40) + "px");
+    document.documentElement.style.setProperty("--rig-max", (cfg.cols * 38 + 40) + "px");
 
     state = {
       rows: cfg.rows,
@@ -1135,7 +1152,7 @@
 
   function renderBoard() {
     boardEl.style.gridTemplateColumns = "repeat(" + state.cols + ", 1fr)";
-    boardEl.style.width = "min(100%, " + (state.cols * 34) + "px)";
+    boardEl.style.width = "min(100%, " + (state.cols * 38) + "px)";
     boardEl.innerHTML = "";
     for (var r = 0; r < state.rows; r++) {
       for (var c = 0; c < state.cols; c++) {
