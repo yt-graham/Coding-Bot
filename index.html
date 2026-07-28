@@ -128,28 +128,37 @@
   }
 
   .ad-rail {
-    display: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 90px;
+    border: 1px dashed var(--chassis-lo);
+    border-radius: 14px;
+    background: var(--chassis);
+    color: var(--ink-dim);
+    font-family: var(--face-font);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 10px;
+    order: 3;
+  }
+  @media (min-width: 760px) {
+    .ad-rail {
+      width: 100%;
+      min-height: 100px;
+      order: 3;
+    }
   }
   @media (min-width: 1100px) {
     .ad-rail {
-      display: flex;
-      align-items: center;
-      justify-content: center;
       width: auto;
       min-width: 160px;
       min-height: min(600px, 70vh);
       flex: 1 1 auto;
       order: -1;
-      border: 1px dashed var(--chassis-lo);
-      border-radius: 14px;
-      background: var(--chassis);
-      color: var(--ink-dim);
-      font-family: var(--face-font);
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      text-align: center;
-      padding: 10px;
     }
   }
 
